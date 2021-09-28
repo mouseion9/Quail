@@ -185,13 +185,13 @@
 ;; Create the dialog itself from what build produces
 (defun create-check-dialog (items &key (columns 1) (prompt-text "Choose one or more ...")
                              (item-print-function NIL)
-                             (item-select-function #'(lambda (i) i))
+                             ;(item-select-function #'(lambda (i) i))
                              (action-function #'(lambda (i) i))
-                             (select-text "select") (cancel-text "cancel"))
-   (let* ((list-of-dialog-items (build-check-dialog-items items :columns columns :prompt-text 
+                                  (select-text "select") (cancel-text "cancel"))
+   (let* ((list-of-dialog-items (build-check-dialog-items items :columns columns :prompt-text prompt-text
                                  :item-print-function item-print-function
                                  :action-function action-function
-                                 prompt-text :select-text select-text :cancel-text cancel-text))
+                                 :select-text select-text :cancel-text cancel-text))
               (view-font 
                (let ((scrn (cg::screen cg::*system*)))
     (cg::with-device-context (hdc scrn)

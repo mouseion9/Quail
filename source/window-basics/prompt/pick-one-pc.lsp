@@ -21,7 +21,7 @@
                                         (action-function 
                                          #'(lambda (i)
                                              i))
-                                        (select-text "select")
+                                        (select-text "Select")
                                         (cancel-text "cancel"))
   (flet ((text-width (string) 
                      (let ((scrn (cg::screen cg::*system*)))

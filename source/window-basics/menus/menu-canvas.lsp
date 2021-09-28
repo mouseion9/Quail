@@ -423,7 +423,7 @@
                    (:key ~
                    (:arg title-left \"Information\" Title of the left-title menu.)~
                    )"))
-
+#| ;; 10SEP2020
 (defmethod initialize-instance :after ((canvas menu-canvas) 
                                        &key
                                        (title-left        "Information")
@@ -448,3 +448,4 @@
                       :title-ctrl-right  title-ctrl-right
                       :menu-type menu-type
                       :when-selected-fn when-selected-fn))
+|#

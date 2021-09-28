@@ -177,7 +177,7 @@
 (defun postscript-include (filename)
   "This function adds the correct full pathname to the names of the include files so that~
    the functions which use the names of the include files will be MCL independent."
-  (concatenate 'string (mk::fullpath-postscript) filename))
+  (concatenate 'string "zot" filename));(mk::fullpath-postscript) filename))
 
 (defun include-file-of (ps-name)
   "This function returns the correct include file path and name for the postscript command~

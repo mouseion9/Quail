@@ -152,7 +152,7 @@
    (cg::move-to mp (cg::make-position x2 y2) ;; to expected end for next draw
      )))
    
-(defun draw-rectangle (canvas left right bot top)  ;;x1 x2 y1 y2)
+(defun draw-rectangle (canvas left top right bot)  ;;x1 x2 y1 y2)
   (let ((mp (cg::frame-child canvas)))
      (cg::draw-box mp (cg::make-box left top right bot))) ;; x1 y1 x2 y2)))
   )

@@ -15,7 +15,7 @@
 
 (in-package :quail-kernel)
 
-#+:sbcl-linux(shadow '(array dimensions))
+;#+:sbcl-linux(shadow '(array dimensions)) ;; OUT 15 Nov 2019
 
 (eval-when (:compile-toplevel :load-toplevel :execute) (export '(array)))
 
@@ -188,7 +188,7 @@
 ;;;
 ;  array
 ;
-
+#|  OUT 15 November 2019
 #-:sbcl-linux(defgeneric array (contents &rest initargs 
                           &key &allow-other-keys)
   (:documentation
@@ -228,8 +228,9 @@
 ;; valid keys:  dimensions class fill deconstruct element-copy type
 ;; future?:     instance-copy element-type
   )
-
-#+:sbcl-linux(sb-ext:with-unlocked-packages (:common-lisp)(defgeneric array (contents &rest initargs 
+|#
+#+:aclpc-linux(excl:without-package-locks 
+  (defgeneric array (contents &rest initargs 
                           &key &allow-other-keys)
   (:documentation
    "Creates an array whose contents are given by the first argument. ~
@@ -269,12 +270,105 @@
 ;; future?:     instance-copy element-type
   ))
 
+#+:sbcl-linux(sb-ext:without-package-locks
+(defgeneric array (contents &rest initargs 
+                          &key &allow-other-keys)
+  (:documentation
+   "Creates an array whose contents are given by the first argument. ~
+    Various methods are implemented that depend on the class of the ~
+    contents given.  Typically the contents can be any ref'able data ~
+    structure like a list or an array. ~
+    (:required ~
+    (:arg contents The cell contents of the array.  Usually just a list of ~
+    the elements, perhaps organized as a list of lists in row-major order. ~
+    Other possibilities include anything that is returned by array, ~
+    :empty to get an empty array, :default, a number, a string, or a symbol. ~
+    If the number of elements of the contents do not match the dimensions ~
+    given then array tries to fill out to an array the required dimensions ~
+    using the contents as elements.) ~
+    ) ~
+    (:key ~
+    (:arg dimensions :default A list of the dimensions of the array.  For example ~
+    a 10 by 4 matrix would have dimensions (list 10 4). ~
+    By default the dimensions will be inferred from the contents.) ~
+    (:arg class :default  If given this will be the class of the array returned. ~
+      If :default, some effort is made to produce an appropriate return class.) ~
+    (:arg fill :row  The major order in which the array is filled.  If :row ~
+    then row major order is used.  If :col, then column-major order.) ~
+    (:arg deconstruct :default  If deconstruct is NIL, contents is used like an initial-element ~
+    ie. each element of the resulting instance is the value of contents. ~
+    The default value of deconstruct is NIL if source is a number, symbol, or string ~
+    (for speed, mostly) T   otherwise.) ~
+    (:arg element-copy #'identity Function to be applied to each element of contents ~
+    that will appear in the array.) ~
+    (:arg type  NIL No further information available.) ~
+    ) ~
+    (:rest (:arg initargs NIL Other keyword value initialization arguments to be passed ~
+    on to the class to be created by array.))"
+   )
+;; valid keys:  dimensions class fill deconstruct element-copy type
+;; future?:     instance-copy element-type
+  )
+)
+
+#-(or :aclpc-linux :sbcl-linux)(defgeneric array (contents &rest initargs 
+                          &key &allow-other-keys)
+  (:documentation
+   "Creates an array whose contents are given by the first argument. ~
+    Various methods are implemented that depend on the class of the ~
+    contents given.  Typically the contents can be any ref'able data ~
+    structure like a list or an array. ~
+    (:required ~
+    (:arg contents The cell contents of the array.  Usually just a list of ~
+    the elements, perhaps organized as a list of lists in row-major order. ~
+    Other possibilities include anything that is returned by array, ~
+    :empty to get an empty array, :default, a number, a string, or a symbol. ~
+    If the number of elements of the contents do not match the dimensions ~
+    given then array tries to fill out to an array the required dimensions ~
+    using the contents as elements.) ~
+    ) ~
+    (:key ~
+    (:arg dimensions :default A list of the dimensions of the array.  For example ~
+    a 10 by 4 matrix would have dimensions (list 10 4). ~
+    By default the dimensions will be inferred from the contents.) ~
+    (:arg class :default  If given this will be the class of the array returned. ~
+      If :default, some effort is made to produce an appropriate return class.) ~
+    (:arg fill :row  The major order in which the array is filled.  If :row ~
+    then row major order is used.  If :col, then column-major order.) ~
+    (:arg deconstruct :default  If deconstruct is NIL, contents is used like an initial-element ~
+    ie. each element of the resulting instance is the value of contents. ~
+    The default value of deconstruct is NIL if source is a number, symbol, or string ~
+    (for speed, mostly) T   otherwise.) ~
+    (:arg element-copy #'identity Function to be applied to each element of contents ~
+    that will appear in the array.) ~
+    (:arg type  NIL No further information available.) ~
+    ) ~
+    (:rest (:arg initargs NIL Other keyword value initialization arguments to be passed ~
+    on to the class to be created by array.))"
+   )
+    
+;; valid keys:  dimensions class fill deconstruct element-copy type
+;; future?:     instance-copy element-type
+  )
 
 
+#+:aclpc-linux(excl:without-package-locks
 (defmethod array ((contents t) &rest initargs 
                 &key (dimensions :default) (class :default))
   (declare (ignore initargs dimensions class))
+  (missing-method 'array contents)))
+
+#+:sbcl-linux(sb-ext:without-package-locks
+(defmethod array ((contents t) &rest initargs 
+                &key (dimensions :default) (class :default))
+  (declare (ignore initargs dimensions class))
+  (missing-method 'array contents)))
+
+#-(or :sbcl-linux :aclpc-linux)(defmethod array ((contents t) &rest initargs 
+                &key (dimensions :default) (class :default))
+  (declare (ignore initargs dimensions class))
   (missing-method 'array contents))
+
 
 (defmethod-multi array ((contents ((eql :empty) (eql :default)))
                       &rest initargs 
@@ -288,7 +382,29 @@
          :dimensions dimensions
          initargs))
 
-(defmethod-multi array ((contents (number symbol))
+#+:aclpc-linux(excl:without-package-locks (defmethod-multi array ((contents (number symbol))
+                      &rest initargs 
+                      &key (dimensions :default) (class :default))
+  (setf dimensions (array-provide-dimensions dimensions contents))
+  (setf class (array-provide-class-name class dimensions contents))
+  (apply #'initialize-contents 
+         class 
+         contents
+         :dimensions dimensions
+         initargs)))
+
+#+:sbcl-linux(sb-ext:without-package-locks(defmethod-multi array ((contents (number symbol))
+                      &rest initargs 
+                      &key (dimensions :default) (class :default))
+  (setf dimensions (array-provide-dimensions dimensions contents))
+  (setf class (array-provide-class-name class dimensions contents))
+  (apply #'initialize-contents 
+         class 
+         contents
+         :dimensions dimensions
+         initargs)))
+
+#-(or :aclpc-linux :sbcl-linux)(defmethod-multi array ((contents (number symbol))
                       &rest initargs 
                       &key (dimensions :default) (class :default))
   (setf dimensions (array-provide-dimensions dimensions contents))
@@ -299,7 +415,32 @@
          :dimensions dimensions
          initargs))
 
-(defmethod-multi array ((contents (dimensioned-ref-object list array scan-env))
+
+#+:aclpc-linux (excl:without-package-locks (defmethod-multi array ((contents (dimensioned-ref-object list array scan-env))
+                        &rest initargs 
+                        &key (dimensions :default) (class :default)
+                        (deconstruct (not (stringp contents))))
+   (setf dimensions (array-provide-dimensions dimensions contents deconstruct))
+   (setf class (array-provide-class-name class dimensions contents deconstruct))
+   (apply #'initialize-contents 
+               class 
+               contents
+               :dimensions dimensions
+               initargs)))
+
+#+:sbcl-linux (sb-ext:without-package-locks (defmethod-multi array ((contents (dimensioned-ref-object list array scan-env))
+                        &rest initargs 
+                        &key (dimensions :default) (class :default)
+                        (deconstruct (not (stringp contents))))
+  (setf dimensions (array-provide-dimensions dimensions contents deconstruct))
+  (setf class (array-provide-class-name class dimensions contents deconstruct))
+  (apply #'initialize-contents 
+         class 
+         contents
+         :dimensions dimensions
+         initargs)))
+
+#-(or :aclpc-linux :sbcl-linux)(defmethod-multi array ((contents (dimensioned-ref-object list array scan-env))
                         &rest initargs 
                         &key (dimensions :default) (class :default)
                         (deconstruct (not (stringp contents))))

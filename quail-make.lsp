@@ -72,19 +72,22 @@
 ;;; We require this package to find lambda lists etc.
 ;;; Seemed to be automatically in Linux but not Mac.
 #+:sbcl (require "sb-introspect")
-
+;;; fix comp:*cltl1-compile-file-toplevel-compatibility-p* as per allegro documentation
+;;; so we are in ansi mode
+#+:aclpc-linux(setf comp:*cltl1-compile-file-toplevel-compatibility-p* nil)
 ;;;
 ;;;  Now get the correct name for the Common Lisp's user package
 ;;;  to be used for this file
 ;;;  DO NOT CHANGE THIS.
 ;;;
 
-#+:cl-2 (in-package :cl-user) 
+#+(and :cl-2 :aclpc-linux) (in-package :cl-user) ; 19 November 2019 
+#+(and :cl-2 :sbcl-linux) (in-package :clim-user)
 #-:cl-2(in-package "USER")
 
 ;
 ;;;   start with the directory from which quail-make.lsp (this file) was loaded:
-#+:cl-2(setf *quail-make-load-directory* (make-pathname :directory
+#+:cl-2(defvar *quail-make-load-directory* (make-pathname :directory
     (pathname-directory *load-truename*)))
 
 
@@ -238,6 +241,7 @@
 ;;;  That done, "doc" now refers to the Quail Doc directory in Common Lisp.
 ;;;
 
+
 ;;;;;;;;;;
 ;;;
 ;;;    Define the lookup for the Quail-init file.
@@ -258,29 +262,31 @@
 
 ;;;  Define the systems which make up Quail
 
-(setf *quail-systems* (list "quail-user"
-                            "initialization"
-                            ;; "analysis-map"
-                            ;;"browser" 15F2018
-                            "statistics"
-                            "probability"
-                            "mathematics"
-                            "linear"
-                            ;;"top-level"
-                            ;;"documentation"
+(setf *quail-systems* (list ;"quail-user"
+                            ;"initialization"
+                            ;; "analyis-map" :03NOV2019 ? gone somewhere else
+                            ;; "browser" ;15F2018 ? gone somewhere else 
+                            ;"statistics"
+                            ;"probability"
+                            ;"mathematics"
+                            ;"linear"
+                            ;"top-level"
+                            ;"documentation"
                             ;; systems above this line use Quail package.
-                            "quail"
-                            ;;"views"
-                            ;;"window-basics"
+                            ;"quail"
+                            ;"views"
+                            "window-basics"
                             "new-math"
                             "quail-kernel"
                             ))
 
-
+;;; Make sure we can recompile if things break in w-b
+#+:sbcl(setf sb-ext::*on-package-variance* '(:warn (:window-basics :quail-kernel) :error T))
 ;;;  Do the make
 (format t "~%Starting the make")
 (loop for system in (reverse *quail-systems*)
-  do (when (or (string-equal system "quail-kernel") (string-equal system "initialization")) 
+  do 
+  (when (or (string-equal system "quail-kernel") (string-equal system "initialization")) 
   #+:sbcl(sb-ext:unlock-package :sb-mop)
   #+:sbcl(sb-ext:unlock-package :common-lisp))
   (asdf:clear-source-registry)
@@ -288,7 +294,8 @@
       (asdf:load-system system)
   (when (or (string-equal system "quail-kernel")  (string-equal system "initialization"))
   #+:sbcl(sb-ext:lock-package :sb-mop)
-  #+:sbcl(sb-ext:lock-package :common-lisp))    
+  #+:sbcl(sb-ext:lock-package :common-lisp)
+  )    
       (format t "~% ~s loaded" system)
     )
 (format t "~%Quail Loaded")

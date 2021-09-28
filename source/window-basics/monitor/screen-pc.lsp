@@ -38,13 +38,30 @@
   ))
 
 #|
+(defun screen-height ()
+   "Returns the height of the special variable *screen* in pixels. ~
+    the optional t is required to get result in pixels. ~
+    the functions used can be applied to any stream."
+   ;(declare (special (cg::screen cg::*system*)))
+   (graft-height (find-graft))
+   )
+
+
 (defun screen-width ()
   "Returns the width of the screen in pixels."
   (declare (special *default-display*))
   (xlib::screen-width
    (xlib::display-default-screen
     *default-display*)))
-|#
+
+
+(defun screen-width ()
+   "Returns the width of the special variable *screen* in pixels. ~
+    The optional t is required to get the result in pixels. ~
+    the functions used ca be applied to any stream."
+  (declare (special (cg::screen cg::*system*)))
+   ;(graft-width (find-graft)))
+  |#
 
 (defun screen-width ()
    "Returns the width of the special variable *screen* in pixels. ~
@@ -64,7 +81,9 @@
 (defun screen-x (canvas)
   (xlib::drawable-x (host-window canvas))) ;;(xwindow-of canvas)))
 |#
-;; Poach from -mcl
+;; Poach from -mcl()
+
+
 (defun screen-x (canvas)
    "The x-coordinate of the bottom left of the EXTERIOR ~
     of canvas as a fixnum."

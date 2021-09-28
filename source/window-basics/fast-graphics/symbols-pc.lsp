@@ -250,7 +250,7 @@ Results with color background are undefined."
          :color color
          :fill? fill?
          :invisible? invisible? 
-         :erase? erase?)
+         :erase? (coerce (make-array (length points) :initial-element erase?) 'list))
         ))
 
 (defun canvas-erase-symbols (canvas points 
@@ -301,7 +301,7 @@ Results with color background are undefined."
       (canvas x y  
        &key size symbol fill? color erase?
        &allow-other-keys)
-     "Draw  symbol using size symbol fill? color and erase?"
+     "Draw/erase  symbol using size symbol fill? color and erase?"
      (declare (special  *host-or-mode* 
                       cg::po-erase cg::po-invert cg::po-replace cg::po-paint)
         (optimize (speed 3) (safety 0)

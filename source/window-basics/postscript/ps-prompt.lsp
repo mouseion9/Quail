@@ -161,7 +161,7 @@
                                 (test-val-for-num
                                  (read-from-string  (prompt-user :prompt-string
                                                                  (concatenate 'string (car pair)
-                                                                              " MUST BE A NUMBER") :type 'string)))))
+                                                                              " MUST BE A NUMBER") :result-type 'string))))) ;; from :type 16JAN2021
                               ((not (eq ans :wrong)) ans))))))
         (setf (ps-x-origin-of pi-info)
               (cdr (assoc x-origin-prompt new-info :test #'string=)))

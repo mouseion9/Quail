@@ -32,8 +32,9 @@
 
 (defun matmult (a b)
   "Matrix multiplication of two objects having dimensions."
-  (declare (optimize speed)
-           (inline ext_+ ext_*))
+  #-:sbcl(declare (optimize (speed 3))
+           (inline ext_+ ext_*)
+           )
   (let* ((dim-a (dimensions-of a))
          (dim-b (dimensions-of b))
          (len-a (length dim-a))

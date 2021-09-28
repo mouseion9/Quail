@@ -45,7 +45,7 @@
 (defgeneric make-ref-array (thing dimensions &rest rest))
 
 (defmethod make-ref-array ((self T) dimensions &rest rest)
-   (declare (ignore solf dimensions rest))
+   (declare (ignore self dimensions rest))
    T)  ;; added May29 98 gwb
 
 (defmethod make-ref-array :around ((self T) dimensions &rest rest)

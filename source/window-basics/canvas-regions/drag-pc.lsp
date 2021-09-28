@@ -556,6 +556,9 @@ coordinates."
                );;end (with-pen-values
               );; end (with-focused-canvas
                    ;; HERE
+                   (format t "~% returned will be L ?T W H ~d ~d ~d ~d"
+                    left (- (canvas-to-host-y canvas top) height)
+                    width height)
           (values left 
               (- (canvas-to-host-y canvas top) height) 
               ;;(+ top height)

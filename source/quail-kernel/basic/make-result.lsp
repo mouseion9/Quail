@@ -39,7 +39,7 @@
                           (eq len-dim 1))
                      (make-sequence 'list (first dimensions)))
                     (t
-                     (array nan :dimensions dimensions)))
+                     (array NaN :dimensions dimensions)))
               ;;  We do (make-instance ret-class ...) rather than
               ;;  (make-instance (find-class ret-class) ...) because
               ;;  then we catch occurrences of, for example,
